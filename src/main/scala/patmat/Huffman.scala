@@ -24,9 +24,18 @@ object Huffman {
   
 
   // Part 1: Basics
-    def weight(tree: CodeTree): Int = ??? // tree match ...
+    def weight(tree: CodeTree): Int = {
+      tree match {
+        case Leaf(c, w) => w
+        case Fork(l, r, cs, w) => w
+      }
+    }
   
-    def chars(tree: CodeTree): List[Char] = ??? // tree match ...
+    def chars(tree: CodeTree): List[Char] = {
+      tree match {
+        case Fork(l, r, cs, w) => cs
+      }
+    } // tree match ...
   
   def makeCodeTree(left: CodeTree, right: CodeTree) =
     Fork(left, right, chars(left) ::: chars(right), weight(left) + weight(right))
@@ -69,7 +78,32 @@ object Huffman {
    *       println("integer is  : "+ theInt)
    *   }
    */
-    def times(chars: List[Char]): List[(Char, Int)] = ???
+    def times(chars: List[Char]): List[(Char, Int)] = {
+      chars.groupBy({ c => c }).map(e => ( e._1, e._2.length)).toList
+    }
+  
+  /*
+   * write a function makeLeafList which generates a list containing 
+   * all the leaves of the Huffman tree to be constructed (the case 
+   * Leaf of the algebraic datatype CodeTree). The list should be 
+   * ordered by ascending weights where the weight of a leaf is the 
+   * number of times (or the frequency)
+   */
+  
+    def makeLeafList(tree: CodeTree): List[CodeTree] = {
+      def iter(t: CodeTree, acc: List[CodeTree]): List[CodeTree] = {
+        t match {
+          case Fork(l, r, cs, w) => {
+            r match {
+              case Fork(l, r, cs, w) => iter(r, acc) ::: iter(l, acc)
+              case _ => iter(l, acc) ::: iter(r, acc)
+            }
+          }
+         case Leaf(c, w) => acc.::(t)
+        }
+      }
+      iter(tree, List())
+    }
   
   /**
    * Returns a list of `Leaf` nodes for a given frequency table `freqs`.
@@ -83,7 +117,12 @@ object Huffman {
   /**
    * Checks whether the list `trees` contains only one single code tree.
    */
-    def singleton(trees: List[CodeTree]): Boolean = ???
+    def singleton(trees: List[CodeTree]): Boolean = {
+      trees.length == 1 && (trees.head match {
+          case Fork(l, r, cs, w) => false
+          case Leaf(c, w) => true
+        })
+    }
   
   /**
    * The parameter `trees` of this function is a list of code trees ordered
@@ -97,7 +136,29 @@ object Huffman {
    * If `trees` is a list of less than two elements, that list should be returned
    * unchanged.
    */
-    def combine(trees: List[CodeTree]): List[CodeTree] = ???
+    def combine(trees: List[CodeTree]): List[CodeTree] = {
+      if (trees.length < 2)
+        trees
+      else {
+        val h1 = trees.head
+        val h2 = trees.tail.head
+        val rest = trees.drop(2)
+        h1 match {
+           case Fork(l1, r1, cs1, w1) => {
+              h2 match {
+                case Fork(l, r, cs, w) => List(new Fork(h1, h2, cs1 ::: cs, w1 + w)) ::: rest
+                case Leaf(c, w) => List(new Fork(h1, h2, c :: cs1, w1 + w)) ::: rest
+              }
+           }
+           case Leaf(c1, w1) => {
+              h2 match {
+                case Fork(l, r, cs, w) => List(new Fork(h1, h2, c1 :: cs, w1 + w)) ::: rest
+                case Leaf(c, w) => List(new Fork(h1, h2, List(c1, c), w1 + w)) ::: rest
+              }
+           }
+        }
+      }
+    }
   
   /**
    * This function will be called in the following way:
