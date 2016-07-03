@@ -34,6 +34,7 @@ object Huffman {
     def chars(tree: CodeTree): List[Char] = {
       tree match {
         case Fork(l, r, cs, w) => cs
+        case Leaf(c, w) => List(c)
       }
     } // tree match ...
   
@@ -118,10 +119,7 @@ object Huffman {
    * Checks whether the list `trees` contains only one single code tree.
    */
     def singleton(trees: List[CodeTree]): Boolean = {
-      trees.length == 1 && (trees.head match {
-          case Fork(l, r, cs, w) => false
-          case Leaf(c, w) => true
-        })
+      trees.length == 1
     }
   
   /**
