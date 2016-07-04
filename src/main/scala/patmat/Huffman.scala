@@ -344,8 +344,32 @@ object Huffman {
    * a valid code tree that can be represented as a code table. Using the code tables of the
    * sub-trees, think of how to build the code table for the entire tree.
    */
-    def convert(tree: CodeTree): CodeTable = ???
+    def convert(tree: CodeTree): CodeTable = {
+      def iterChar(cs: List[Char], acc: List[(Char, Bit)], bit: Bit): List[(Char, Bit)] = {
+        if (cs.isEmpty)
+          acc
+        else
+          iterChar(cs.tail, acc :+ ((cs.head, bit)), bit )
+      }
+      def iter(t: CodeTree, acc: List[(Char, Bit)], bit: Bit): List[(Char, Bit)] = {
+        t match {
+          case Fork(l, r, cs, w) => {
+            iter(r, iter(l, iterChar(cs, acc, bit), 0), 1)
+          }
+         case Leaf(c, w) =>  acc :+ ((c, bit))
+        }
+      }
+      iter(tree, List(), 0).groupBy(_._1).mapValues(_.map(_._2)).toList
+  }
+
+    /**
+   * Write a function that returns the decoded secret
+   */
+  def convertFrenchCode: CodeTable = {
+    convert(frenchCode)
+  }
   
+
   /**
    * This function takes two code tables and merges them into one. Depending on how you
    * use it in the `convert` method above, this merge method might also do some transformations
