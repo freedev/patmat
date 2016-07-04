@@ -294,6 +294,7 @@ object Huffman {
                   if (cs.contains(_text.head)) {
                     iter(l, _text, acc :+ 0) 
                   } else {
+                    //println(" " + (acc :+ 1 )  + _text.head )
                     iter(tree, _text.tail, acc :+ 1)
                   }
                 }
@@ -301,13 +302,16 @@ object Huffman {
                   if (cs.contains(_text.head)) {
                     iter(r, _text, acc :+ 1) 
                   } else {
+                    //println(" " + (acc :+ 0 ) + _text.head )
                     iter(tree, _text.tail, acc :+ 0)
                   }
                 }
                 case (Leaf(c1, _), Leaf(c2, _)) => {
                   if (c1 == _text.head) {
+                    //println(" " + (acc :+ 0 )  + _text.head )
                     iter(tree, _text.tail, acc :+ 0)
                   } else {
+                    //println(" " + (acc :+ 1 )  + _text.head )
                     iter(tree, _text.tail, acc :+ 1)
                   }
                 }
@@ -359,7 +363,12 @@ object Huffman {
          case Leaf(c, w) =>  acc :+ ((c, bit))
         }
       }
-      iter(tree, List(), 0).groupBy(_._1).mapValues(_.map(_._2)).toList
+      tree match {
+          case Fork(l, r, cs, w) => {
+            iter(r, iter(l, List(), 0), 1).groupBy(_._1).mapValues(_.map(_._2)).toList
+          }
+         case Leaf(c, w) => List((c, List(0)))
+      }
   }
 
     /**
