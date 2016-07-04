@@ -71,7 +71,7 @@ class HuffmanSuite extends FunSuite {
 
   test("convertFrenchCode") {
     new TestTrees {
-      assert(convertFrenchCode === secret)
+      assert(codeBits(convertFrenchCode)('n') === List(1, 0, 1, 0))
     }
   }
 

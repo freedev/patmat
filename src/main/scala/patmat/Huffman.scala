@@ -275,6 +275,10 @@ object Huffman {
    * into a sequence of bits.
    */
   def encode(tree: CodeTree)(text: List[Char]): List[Bit] = {
+    
+    val _encode = (tree: CodeTree) => {
+      
+    }
     @tailrec
     def iter(curTree: CodeTree, _text: List[Char], acc : List[Bit]): List[Bit] = {
         if (_text.isEmpty) {
@@ -338,7 +342,9 @@ object Huffman {
    * This function returns the bit sequence that represents the character `char` in
    * the code table `table`.
    */
-    def codeBits(table: CodeTable)(char: Char): List[Bit] = ???
+    def codeBits(table: CodeTable)(char: Char): List[Bit] = {
+     table.filter( f => f._1 == char ).head._2
+  }
   
   /**
    * Given a code tree, create a code table which contains, for every character in the
@@ -392,5 +398,15 @@ object Huffman {
    * To speed up the encoding process, it first converts the code tree to a code table
    * and then uses it to perform the actual encoding.
    */
-    def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
+    def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = {
+      val table = convert(tree)
+      def iter(_text: List[Char], acc: List[Bit]): List[Bit] = {
+         if (_text.isEmpty)
+           acc
+         else {
+           iter( _text.tail, acc ::: codeBits(table)(_text.head))
+         }
+      }
+      iter(text, List())
+    }
   }
